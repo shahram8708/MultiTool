@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+
+{% block title %}429 — Rate Limit Exceeded | MultiTool AI{% endblock %}
+
+{% block content %}
+<div class="error-page">
+    <div class="error-icon">⏱️</div>
+    <div class="error-code">429</div>
+    <h1 class="error-title">Rate Limit Exceeded</h1>
+    <p class="error-description">
+        You've sent too many requests in a short period. Please wait a moment
+        and try again. Our servers appreciate your patience.
+    </p>
+    <a href="/" class="btn-back-home">
+        ← Back to MultiTool AI
+    </a>
+</div>
+{% endblock %}

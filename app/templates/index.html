@@ -1,0 +1,203 @@
+{% extends "base.html" %}
+
+{% block title %}MultiTool AI — Intelligent Conversations{% endblock %}
+
+{% block content %}
+<div class="app-container">
+
+    <!-- Sidebar Overlay (mobile) -->
+    <div class="sidebar-overlay" id="sidebar-overlay"></div>
+
+    <!-- ===== Sidebar ===== -->
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <div class="sidebar-brand">
+                <div class="sidebar-brand-icon">⚡</div>
+                <div class="sidebar-brand-text">MultiTool AI</div>
+            </div>
+            <button class="btn-new-chat" id="btn-new-chat">
+                <span>＋</span>
+                <span>New Chat</span>
+            </button>
+        </div>
+
+        <div class="sidebar-search">
+            <div class="sidebar-search-wrapper">
+                <span class="sidebar-search-icon">🔍</span>
+                <input type="text" id="chat-search" placeholder="Search conversations..." autocomplete="off">
+            </div>
+        </div>
+
+        <div class="chat-list" id="chat-list">
+            <!-- Chat list items rendered by JS from initial data -->
+        </div>
+
+        <div class="sidebar-footer">
+            <button class="btn-theme-toggle" id="btn-theme-toggle">
+                <span class="theme-icon">☀️</span>
+                <span class="theme-label">Light Mode</span>
+            </button>
+        </div>
+    </aside>
+
+    <!-- ===== Main Panel ===== -->
+    <main class="main-panel">
+
+        <!-- Chat Header -->
+        <header class="chat-header">
+            <div class="chat-header-left">
+                <button class="btn-sidebar-toggle" id="btn-sidebar-toggle">☰</button>
+                <div class="chat-header-title" id="chat-header-title" style="display:none;" title="Click to rename">
+                    <!-- Chat title injected by JS -->
+                </div>
+            </div>
+            <div class="chat-header-actions" id="chat-header-actions" style="display:none;">
+                <button class="btn-header-action" id="btn-chat-settings" title="Edit chat settings">⚙️</button>
+                <button class="btn-header-action danger" id="btn-delete-chat" title="Delete chat">🗑️</button>
+            </div>
+        </header>
+
+        <!-- Message Area -->
+        <div class="message-area" id="message-area">
+
+            <!-- Welcome Screen (no active chat) -->
+            <div class="welcome-screen" id="welcome-screen">
+                <div class="welcome-icon">⚡</div>
+                <h1 class="welcome-title">Welcome to MultiTool AI</h1>
+                <p class="welcome-description">
+                    Your premium AI assistant for intelligent conversations.
+                    Create a new chat to get started with powerful language model capabilities,
+                    file analysis, code generation, and more.
+                </p>
+                <button class="welcome-cta" id="welcome-cta">
+                    ＋ Create Your First Chat
+                </button>
+            </div>
+
+            <!-- Empty State (active chat, no messages) -->
+            <div class="empty-state" id="empty-state" style="display:none;">
+                <div class="empty-state-icon">💬</div>
+                <p class="empty-state-text">Send a message to start the conversation</p>
+            </div>
+
+            <!-- Message List -->
+            <div id="message-list" style="display:none;">
+                <!-- Messages rendered by JS -->
+            </div>
+
+        </div>
+
+        <!-- Composer -->
+        <div class="composer" id="composer" style="display:none;">
+            <div class="composer-attachments" id="composer-attachments" style="display:none;">
+                <!-- File chips rendered by JS -->
+            </div>
+            <div class="composer-input-row">
+                <button class="btn-attach" id="btn-attach" title="Attach files">📎</button>
+                <input type="file" id="file-input" multiple hidden>
+                <textarea id="message-input"
+                          placeholder="Type a message... (Enter to send, Shift+Enter for new line)"
+                          rows="1"></textarea>
+                <button class="btn-send" id="btn-send" disabled title="Send message">➤</button>
+            </div>
+        </div>
+
+    </main>
+</div>
+
+<!-- ===== Chat Settings Modal ===== -->
+<div class="modal fade" id="chatSettingsModal" tabindex="-1" aria-labelledby="chatSettingsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="chatSettingsModalLabel">Edit Chat Settings</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="chat-settings-form">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="chat-settings-title" class="form-label">Chat Title</label>
+                        <input type="text" class="form-control" id="chat-settings-title" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="chat-settings-instruction" class="form-label">System Instruction</label>
+                        <textarea class="form-control" id="chat-settings-instruction" rows="5"
+                                  placeholder="Define how the assistant should behave for this chat."></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-cancel-custom" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary-custom">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- ===== New Chat Modal ===== -->
+<div class="modal fade" id="newChatModal" tabindex="-1" aria-labelledby="newChatModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="newChatModalLabel">Create New Chat</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="new-chat-form">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="new-chat-title" class="form-label">Chat Title</label>
+                        <input type="text" class="form-control" id="new-chat-title"
+                               placeholder="e.g., Python Project Help" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="new-chat-instruction" class="form-label">System Instruction</label>
+                        <textarea class="form-control" id="new-chat-instruction" rows="4"
+                                  placeholder="You are a helpful coding assistant. You specialize in Python, JavaScript, and system design. Provide clear, well-documented code examples and explain your reasoning step by step." required></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-cancel-custom" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary-custom">Create Chat</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- ===== Delete Confirmation Modal ===== -->
+<div class="modal fade" id="deleteChatModal" tabindex="-1" aria-labelledby="deleteChatModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-sm">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteChatModalLabel">Delete Chat</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p style="color: var(--text-secondary); font-size: 14px;">
+                    Are you sure you want to delete this chat? This action cannot be undone.
+                    All messages and attachments will be permanently removed.
+                </p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-cancel-custom" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary-custom" id="btn-confirm-delete"
+                        style="background: var(--danger); box-shadow: none;">Delete</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ===== Toast Container ===== -->
+<div class="toast-container" id="toast-container"></div>
+
+<!-- ===== Initial Server Data ===== -->
+<script type="application/json" id="initial-data">
+{
+    "chats": {{ chats | tojson }},
+    "active_chat": {{ active_chat | tojson if active_chat else 'null' }},
+    "messages": {{ messages | tojson }},
+    "has_more_chats": {{ has_more_chats | tojson }},
+    "chats_page": {{ chats_page | tojson }}
+}
+</script>
+{% endblock %}
