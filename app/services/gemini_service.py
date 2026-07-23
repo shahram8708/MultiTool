@@ -121,11 +121,12 @@ def send_message(
         )
 
         # ---- Build generation config -------------------------------------
-        gen_config = None
+        gen_config_kwargs = {
+            'tools': [types.Tool(google_search=types.GoogleSearch())],
+        }
         if should_include_system_instruction and chat.system_instruction:
-            gen_config = types.GenerateContentConfig(
-                system_instruction=chat.system_instruction,
-            )
+            gen_config_kwargs['system_instruction'] = chat.system_instruction
+        gen_config = types.GenerateContentConfig(**gen_config_kwargs)
 
         # ---- Call the API with a timeout ---------------------------------
         def _call_api():
